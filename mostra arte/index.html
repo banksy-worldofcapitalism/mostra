@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<title>Biglietto Evento</title>
+
+<!-- Librerie -->
+<script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcodejs/qrcode.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.3/html2pdf.bundle.min.js"></script>
+
+<style>
+body {
+  background: linear-gradient(135deg, #ffffff, #dedab9, #b2b2b2);
+  font-family: 'Segoe UI', sans-serif;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 40px;
+  margin: 0;
+}
+
+header {
+  width: 100%;
+  max-width: 1200px;
+  background: linear-gradient(135deg, #ffffff, #dedab9, #b2b2b2);
+  padding: 20px;
+  border-radius: 15px;
+  margin-bottom: 30px;
+  text-align: center;
+  border: 2px solid #000000;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  min-height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+header.with-bg {
+  background-color: linear-gradient(135deg, #ffffff, #dedab9, #b2b2b2);
+}
+
+.logo-box {
+  display: none;
+}
+
+.logo-box img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+.logo-box p {
+  text-align: center;
+  font-size: 12px;
+  color: #b82a2a;
+}
+
+.logo-upload {
+  display: none;
+}
+
+.main-content {
+  display: flex;
+  gap: 30px;
+  max-width: 1200px;
+  width: 100%;
+}
+
+.gallery-section {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  flex: 1;
+}
+
+.image-block-large {
+  width: 100%;
+  height: 350px;
+  background: rgba(255,255,255,0.15);
+  border: 2px solid #b82a2a;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+
+.image-block-large img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.image-block-large p {
+  text-align: center;
+  color: #b82a2a;
+  font-size: 14px;
+}
+
+.image-block-row {
+  display: flex;
+  gap: 15px;
+}
+
+.image-block-small {
+  flex: 1;
+  height: 170px;
+  background: rgba(255,255,255,0.15);
+  border: 2px solid #b82a2a;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+
+.image-block-small img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.image-block-small p {
+  text-align: center;
+  color: #b82a2a;
+  font-size: 12px;
+}
+
+#imgSmall2 {
+  object-position: top;
+}
+
+.container {
+  background: rgba(0,0,0,0.3);
+  padding: 30px;
+  border-radius: 15px;
+  width: 420px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border: 2px solid #000000;
+}
+
+.container h1 {
+  text-align: center;
+  margin-bottom: 20px;
+  width: 100%;
+}
+
+.container input {
+  width: 100%;
+  max-width: 350px;
+  padding: 12px;
+  margin: 10px auto;
+  border-radius: 8px;
+  border: none;
+  font-size: 16px;
+}
+
+.container button {
+  width: 100%;
+  max-width: 350px;
+  padding: 12px;
+  margin: 10px auto;
+  border-radius: 8px;
+  border: none;
+  font-size: 16px;
+  background: #b82a2a;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+h1 {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+input, button {
+  width: 100%;
+  padding: 12px;
+  margin: 10px 0;
+  border-radius: 8px;
+  border: none;
+  font-size: 16px;
+}
+
+button {
+  background: #b82a2a;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.ticket {
+  margin-top: 30px;
+  background: white;
+  color: black;
+  border-radius: 15px;
+  padding: 20px;
+  display: none;
+}
+
+.ticket-header {
+  text-align: center;
+  font-size: 22px;
+  font-weight: bold;
+}
+
+.ticket-body {
+  margin-top: 15px;
+}
+
+.ticket-body p {
+  margin: 6px 0;
+}
+
+.codes {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 15px;
+}
+
+#qrcode {
+  width: 100px;
+  height: 100px;
+}
+
+.download {
+  margin-top: 15px;
+  background: #8b1e1e;
+  color: white;
+}
+
+footer {
+  width: 100%;
+  max-width: 1200px;
+  background: rgba(0,0,0,0.3);
+  padding: 30px;
+  border-radius: 15px;
+  margin-top: 30px;
+  display: flex;
+  gap: 30px;
+  border: 2px solid #000000;
+}
+
+.footer-left {
+  flex: 1;
+  text-align: left;
+}
+
+.footer-left h2 {
+  color: #b82a2a;
+  margin-top: 0;
+}
+
+.footer-left p {
+  line-height: 1.6;
+  font-size: 18px;
+}
+
+.footer-disclaimer {
+  font-size: 12px;
+  margin-top: 15px;
+  font-style: italic;
+}
+
+.footer-right {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+  align-items: start;
+}
+
+.footer-image {
+  width: 100%;
+  height: 150px;
+  background: white;
+  border: 2px solid #b82a2a;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  padding: 5px;
+}
+
+.footer-image img {
+  width: auto;
+  height: auto;
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <img id="logoImg" src="fd07be07-e8c3-469d-bd68-47c59935f711.png" alt="Logo" style="display:none;">
+  <!-- header upload control removed per user request -->
+</header>
+<div class="main-content">
+  <div class="gallery-section">
+    <div class="image-block-large" id="imageBlock1">
+      <img id="imgLarge" src="banksy-graffiti-art-on-west-bank-barrier.jpg" alt="Immagine Grande" style="display:none;">
+      <p id="textLarge">Immagine non caricata</p>
+    </div>
+    
+    <div class="image-block-row">
+      <div class="image-block-small" id="imageBlock2">
+        <img id="imgSmall1" src="gabs.jpg" alt="Immagine 1" style="display:none;">
+        <p id="textSmall1">Immagine non caricata</p>
+      </div>
+      
+      <div class="image-block-small" id="imageBlock3">
+        <img id="imgSmall2" src="kissing-coppers-banksy-f1b09.jpg" alt="Immagine 2" style="display:none;">
+        <p id="textSmall2">Immagine non caricata</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="container">
+    <h1>Prenota il tuo biglietto*</h1>
+
+    <input type="text" id="name" placeholder="Nome e Cognome" autocomplete="name">
+    <input type="email" id="email" placeholder="Email" autocomplete="email">
+    <input type="date" id="date" autocomplete="bday">
+
+  <button onclick="generaBiglietto()">Visualizza Biglietto</button>
+
+  <div class="ticket" id="ticket">
+    <div class="ticket-header">EVENT TICKET</div>
+
+    <div class="ticket-body">
+      <p><strong>Nome:</strong> <span id="t-name"></span></p>
+      <p><strong>Email:</strong> <span id="t-email"></span></p>
+      <p><strong>Data:</strong> <span id="t-date"></span></p>
+    </div>
+
+    <div class="codes">
+      <svg id="barcode"></svg>
+      <div id="qrcode"></div>
+    </div>
+  </div>
+
+  <button class="download" onclick="scaricaPDF()">Scarica PDF</button>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-left">
+    <h2>Contatti</h2>
+    <p><strong>Lorenzo Fumagalli, Andrea Riva <br>
+    National Gallery, London <br>
+    <a href="https://www.google.com/maps/place/data=!4m2!3m1!1s0x487604ce176ac979:0x42af85654e23a0b4?sa=X&ved=1t:8290&ictx=111">Trafalgar Square, London WC2N 5DN, Regno Unito</a></strong> <br>
+    telefono: +44 123 123 1234 <br>
+    email: mostrabanksy@gmail.com <br>
+*Questo sito è stato realizzato per un progetto scolastico, non vuole in alcun modo vendere biglietti per una reale mostra di Banksy</p>
+    <p class="footer-disclaimer">*Questo sito è stato realizzato per un progetto scolastico, non vuole in alcun modo vendere biglietti per una reale mostra di Banksy</p>
+  </div>  
+ <div class="footer-right">
+    <div class="footer-image" id="footerImg1">
+      <img id="fImg1" src="national-gallery-logo-png_seeklogo-409662.webp" alt="Immagine 1" style="display:none;">
+    </div>
+    <div class="footer-image" id="footerImg2">
+      <img id="fImg2" src="tefaf-maastricht-logo.jpg" alt="Immagine 2" style="display:none;">
+    </div>
+    <div class="footer-image" id="footerImg3">
+      <img id="fImg3" src="bank-of-england-logo-png_seeklogo-16323.webp" alt="Immagine 3" style="display:none;">
+    </div>
+    <div class="footer-image" id="footerImg4">
+      <img id="fImg4" src="OUTSET-logo-300x200.webp" alt="Immagine 4" style="display:none;">
+    </div>
+  </div>
+</footer>
+
+<script>
+// Funzioni per aggiungere immagini via codice (da programmatore)
+window.addGalleryImage = function(index, imagePath) {
+  if (index === 1) {
+    document.getElementById("imgLarge").src = imagePath;
+    document.getElementById("imgLarge").style.display = "block";
+    document.getElementById("textLarge").style.display = "none";
+  } else if (index === 2) {
+    document.getElementById("imgSmall1").src = imagePath;
+    document.getElementById("imgSmall1").style.display = "block";
+    document.getElementById("textSmall1").style.display = "none";
+  } else if (index === 3) {
+    document.getElementById("imgSmall2").src = imagePath;
+    document.getElementById("imgSmall2").style.display = "block";
+    document.getElementById("textSmall2").style.display = "none";
+  }
+};
+
+window.addFooterImage = function(index, imagePath) {
+  if (index >= 1 && index <= 4) {
+    document.getElementById("fImg" + index).src = imagePath;
+    document.getElementById("fImg" + index).style.display = "block";
+  }
+};
+
+window.addLogo = function(imagePath) {
+  const header = document.querySelector('header');
+  header.style.backgroundImage = `url('${imagePath}')`;
+  header.classList.add('with-bg');
+};
+
+// Mostra automaticamente le immagini al caricamento se hanno src
+window.addEventListener('load', function() {
+  // Logo - imposta come background dell'header
+  const logoImg = document.getElementById("logoImg");
+  const header = document.querySelector('header');
+  
+  // If page is opened via file://, many browsers block fetch/canvas operations on file:// resources.
+  // Clear any file:// image srcs and show upload hints so the user can provide data-URLs instead.
+  const isFileProtocol = window.location.protocol === 'file:';
+  if (logoImg && logoImg.src && !logoImg.src.endsWith('undefined')) {
+    if (isFileProtocol && logoImg.src.startsWith('file:')) {
+      logoImg.src = '';
+      // leave header with upload hint
+    } else {
+      header.style.backgroundImage = `url('${logoImg.src}')`;
+      header.classList.add('with-bg');
+    }
+  }
+  
+  // Immagini gallery
+  const imgLarge = document.getElementById("imgLarge");
+  const imgSmall1 = document.getElementById("imgSmall1");
+  const imgSmall2 = document.getElementById("imgSmall2");
+
+  // Helper to clear file:// sources when served via file protocol
+  function showOrClearImage(imgEl, textEl) {
+    if (!imgEl) return;
+    if (imgEl.src && imgEl.src !== window.location.href) {
+      if (isFileProtocol && imgEl.src.startsWith('file:')) {
+        imgEl.src = '';
+        if (textEl) textEl.style.display = 'block';
+      } else {
+        imgEl.style.display = 'block';
+        if (textEl) textEl.style.display = 'none';
+      }
+    }
+  }
+
+  showOrClearImage(imgLarge, document.getElementById('textLarge'));
+  showOrClearImage(imgSmall1, document.getElementById('textSmall1'));
+  showOrClearImage(imgSmall2, document.getElementById('textSmall2'));
+  
+  // Immagini footer
+  for (let i = 1; i <= 4; i++) {
+    const img = document.getElementById("fImg" + i);
+    if (!img) continue;
+    if (img.src && img.src !== window.location.href) {
+      if (isFileProtocol && img.src.startsWith('file:')) {
+        img.src = '';
+      } else {
+        img.style.display = 'block';
+      }
+    }
+  }
+
+  // If running from file://, show a small banner suggesting to run a local HTTP server
+  if (isFileProtocol) {
+    const banner = document.createElement('div');
+    banner.style.position = 'fixed';
+    banner.style.left = '10px';
+    banner.style.bottom = '10px';
+    banner.style.background = 'rgba(0,0,0,0.75)';
+    banner.style.color = '#fff';
+    banner.style.padding = '10px 12px';
+    banner.style.borderRadius = '8px';
+    banner.style.fontSize = '13px';
+    banner.style.zIndex = '9999';
+    banner.textContent = 'Nota: la pagina è aperta via file://; per esportare il PDF correttamente, avvia un server locale (vedi istruzioni nel sito).';
+    document.body.appendChild(banner);
+  }
+});
+
+function generaBiglietto() {
+  const name = document.getElementById("name").value;
+  const email = document.getElementById("email").value;
+  const date = document.getElementById("date").value;
+
+  if (!name || !email || !date) {
+    alert("Compila tutti i campi");
+    return;
+  }
+
+  document.getElementById("t-name").innerText = name;
+  document.getElementById("t-email").innerText = email;
+  document.getElementById("t-date").innerText = date;
+
+  const codice = Math.floor(Math.random() * 1000000000);
+
+  JsBarcode("#barcode", codice.toString(), {
+    format: "CODE128",
+    width: 2,
+    height: 50,
+    displayValue: false
+  });
+
+  document.getElementById("qrcode").innerHTML = "";
+  new QRCode(document.getElementById("qrcode"), {
+    text: "BIGLIETTO | " + name + " | " + date + " | " + codice,
+    width: 100,
+    height: 100
+  });
+
+  document.getElementById("ticket").style.display = "block";
+}
+
+async function scaricaPDF() {
+  const ticket = document.getElementById("ticket");
+
+  if (ticket.style.display === "none") {
+    alert("Per favore, clicca prima su 'Visualizza Biglietto' prima di scaricare il PDF");
+    return;
+  }
+
+  // Disabilita il bottone durante la generazione
+  const downloadBtn = event.target;
+  downloadBtn.disabled = true;
+  downloadBtn.textContent = "Generazione in corso...";
+
+  try {
+    // Crea un contenitore temporaneo per il PDF con logo e footer
+    const pdfContainer = document.createElement("div");
+    pdfContainer.style.background = "white";
+    pdfContainer.style.color = "black";
+    pdfContainer.style.padding = "20px";
+    pdfContainer.style.borderRadius = "15px";
+
+  // Aggiungi logo al PDF
+  const logoSection = document.createElement("div");
+  logoSection.style.textAlign = "center";
+  logoSection.style.marginBottom = "20px";
+  logoSection.style.borderBottom = "2px solid #ccc";
+  logoSection.style.paddingBottom = "10px";
+  logoSection.style.width = "100%";
+  
+  const logoImg = document.getElementById("logoImg");
+  if (logoImg.src) {
+    const clonedLogo = logoImg.cloneNode(true);
+    clonedLogo.style.width = "100%";
+    clonedLogo.style.height = "auto";
+    clonedLogo.style.objectFit = "contain";
+    clonedLogo.style.display = "block";
+    logoSection.appendChild(clonedLogo);
+  }
+
+  pdfContainer.appendChild(logoSection);
+
+  // Aggiungi il biglietto
+  const clonedTicket = ticket.cloneNode(true);
+  clonedTicket.style.margin = "0";
+  clonedTicket.style.marginBottom = "20px";
+  pdfContainer.appendChild(clonedTicket);
+
+  // Aggiungi footer con contatti e immagini
+  const footerSection = document.createElement("div");
+  footerSection.style.borderTop = "2px solid #ccc";
+  footerSection.style.paddingTop = "20px";
+  footerSection.style.marginTop = "20px";
+  footerSection.style.fontSize = "12px";
+
+  // Sezione contatti (paragrafo)
+  const contactsDiv = document.createElement("div");
+  contactsDiv.style.marginBottom = "15px";
+  const contactsTitle = document.createElement("h3");
+  contactsTitle.textContent = "Contatti";
+  contactsTitle.style.marginTop = "0";
+  contactsDiv.appendChild(contactsTitle);
+  
+  const contactsText = document.createElement("p");
+  contactsText.innerHTML = "Lorenzo Fumagalli, Andrea Riva<br>National Gallery, London<br>Trafalgar Square, London WC2N 5DN, Regno Unito<br>Telefono: +44 123 123 1234<br>Email: mostrabanksy@gmail.com <br> *Questo sito è stato realizzato per un progetto scolastico, non vuole in alcun modo vendere biglietti per una reale mostra di Banksy";
+  contactsText.style.margin = "5px 0";
+  contactsText.style.fontSize = "11px";
+  contactsText.style.lineHeight = "1.4";
+  contactsDiv.appendChild(contactsText);
+  footerSection.appendChild(contactsDiv);
+
+  // Sezione immagini footer (in riga orizzontale nel PDF, occupando tutto lo spazio)
+  const imagesDiv = document.createElement("div");
+  imagesDiv.style.display = "flex";
+  imagesDiv.style.flexDirection = "row";
+  imagesDiv.style.gap = "10px";
+  imagesDiv.style.marginTop = "15px";
+  imagesDiv.style.justifyContent = "space-between";
+  imagesDiv.style.width = "100%";
+
+  for (let i = 1; i <= 4; i++) {
+    const footerImg = document.getElementById("fImg" + i);
+    if (footerImg && footerImg.src && footerImg.src !== window.location.href) {
+      const imgCell = document.createElement("div");
+      imgCell.style.flex = "1";
+      imgCell.style.minHeight = "60px";
+      imgCell.style.borderRadius = "5px";
+      imgCell.style.overflow = "hidden";
+      imgCell.style.border = "2px solid #b82a2a";
+      imgCell.style.padding = "5px";
+      imgCell.style.display = "flex";
+      imgCell.style.alignItems = "center";
+      imgCell.style.justifyContent = "center";
+      
+      const clonedFooterImg = footerImg.cloneNode(true);
+      clonedFooterImg.style.width = "100%";
+      clonedFooterImg.style.height = "auto";
+      clonedFooterImg.style.maxHeight = "100%";
+      clonedFooterImg.style.objectFit = "contain";
+      clonedFooterImg.style.display = "block";
+      clonedFooterImg.src = footerImg.src;
+      
+      imgCell.appendChild(clonedFooterImg);
+      imagesDiv.appendChild(imgCell);
+    }
+  }
+
+  if (imagesDiv.children.length > 0) {
+    footerSection.appendChild(imagesDiv);
+  }
+
+  pdfContainer.appendChild(footerSection);
+
+  // Helper: try to fetch image and convert to data URL
+  async function toDataURLFromFetch(url) {
+    const resp = await fetch(url, { mode: 'cors' });
+    if (!resp.ok) throw new Error('Fetch failed: ' + resp.status);
+    const blob = await resp.blob();
+    return await new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onloadend = () => resolve(reader.result);
+      reader.onerror = reject;
+      reader.readAsDataURL(blob);
+    });
+  }
+
+  // Helper: try to draw image to canvas and get data URL (uses crossOrigin)
+  async function toDataURLFromCanvas(url) {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.crossOrigin = 'Anonymous';
+      img.onload = () => {
+        try {
+          const canvas = document.createElement('canvas');
+          canvas.width = img.naturalWidth || img.width;
+          canvas.height = img.naturalHeight || img.height;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0);
+          resolve(canvas.toDataURL('image/png'));
+        } catch (e) {
+          reject(e);
+        }
+      };
+      img.onerror = (e) => reject(new Error('Image load error'));
+      img.src = url;
+    });
+  }
+
+  // Ensure all <img> inside a container use data: URLs to avoid canvas taint
+  async function ensureImagesAreDataURLs(container) {
+    const imgs = Array.from(container.querySelectorAll('img'));
+    for (const img of imgs) {
+      try {
+        if (!img.src) continue;
+        if (img.src.startsWith('data:')) continue;
+
+        // Try fetch -> blob -> dataURL first (preferred when served over http)
+        try {
+          const dataUrl = await toDataURLFromFetch(img.src);
+          img.src = dataUrl;
+          continue;
+        } catch (e) {
+          console.warn('Fetch->dataURL failed for', img.src, e);
+        }
+
+        // Fallback: try loading with crossOrigin and drawing to canvas
+        try {
+          const dataUrl = await toDataURLFromCanvas(img.src);
+          img.src = dataUrl;
+          continue;
+        } catch (e) {
+          console.warn('Canvas conversion failed for', img.src, e);
+        }
+
+        // If we reach here, we couldn't inline the image
+        throw new Error('Could not inline image: ' + img.src);
+      } catch (err) {
+        console.error('ensureImagesAreDataURLs error for', img, err);
+        throw err;
+      }
+    }
+  }
+
+  // Try to inline images before calling html2pdf to avoid "The operation is insecure"
+  try {
+    console.log('Inlining images for PDF...');
+    await ensureImagesAreDataURLs(pdfContainer);
+  } catch (err) {
+    console.error('Could not inline images - this may be due to running the page via file:// or cross-origin restrictions', err);
+    alert('Impossibile preparare alcune immagini per il PDF. Se stai aprendo la pagina con file://, avvia un server locale (vedi istruzioni) e riprova. Controlla la console per dettagli.');
+    throw err;
+  }
+
+  // Scarica il PDF (dopo che le immagini sono state convertite in data URLs)
+  console.log('Avvio html2pdf...');
+  await html2pdf()
+    .from(pdfContainer)
+    .set({
+      margin: 0.5,
+      filename: 'biglietto_evento.pdf',
+      image: { type: 'jpeg', quality: 0.98 },
+      html2canvas: { scale: 2, useCORS: true, allowTaint: false },
+      jsPDF: { unit: 'cm', format: 'a4', orientation: 'portrait' }
+    })
+    .save();
+
+  console.log('html2pdf: save() resolved');
+} catch (error) {
+  console.error('html2pdf save error:', error);
+  alert('Errore durante la generazione del PDF. Controlla la console per dettagli.');
+} finally {
+  // Riabilita il bottone
+  downloadBtn.disabled = false;
+  downloadBtn.textContent = "Scarica PDF";
+}
+
+// ============================================
+// AGGIUNGI LE IMMAGINI QUI (da riga 361)
+// ============================================
+// Decommenta e modifica i percorsi delle immagini:
+//
+// addLogo('path/to/logo.png');
+// addGalleryImage(1, 'path/to/gallery1.jpg');
+// addGalleryImage(2, 'path/to/gallery2.jpg');
+// addGalleryImage(3, 'path/to/gallery3.jpg');
+// addFooterImage(1, 'path/to/footer1.jpg');
+// addFooterImage(2, 'path/to/footer2.jpg');
+// addFooterImage(3, 'path/to/footer3.jpg');
+// addFooterImage(4, 'path/to/footer4.jpg');
+// ============================================
+}
+</script>
+
+<script>
+// Supporto per caricare immagini locali (convertite in data URLs)
+(function(){
+  const fileInput = document.createElement('input');
+  fileInput.type = 'file';
+  fileInput.accept = 'image/*';
+  fileInput.style.display = 'none';
+  document.body.appendChild(fileInput);
+
+  let currentTargetImgId = null;
+
+  // Click sul box header per caricare logo
+  // header upload removed per user request (no visible button)
+
+  // Click su ogni footer-image per caricare immagine corrispondente
+  document.querySelectorAll('.footer-image').forEach(div => {
+    div.style.cursor = 'pointer';
+    div.addEventListener('click', () => {
+      const img = div.querySelector('img');
+      if (img && img.id) {
+        currentTargetImgId = img.id;
+        fileInput.click();
+      }
+    });
+  });
+
+  fileInput.addEventListener('change', (e) => {
+    const f = e.target.files && e.target.files[0];
+    if (!f || !currentTargetImgId) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      const dataUrl = reader.result;
+      const img = document.getElementById(currentTargetImgId);
+      if (!img) return;
+      img.src = dataUrl;
+      img.style.display = 'block';
+      // If logo, also set header background
+      if (img.id === 'logoImg') {
+        const header = document.querySelector('header');
+        if (header) {
+          header.style.backgroundImage = `url('${dataUrl}')`;
+          header.classList.add('with-bg');
+        }
+      }
+    };
+    reader.readAsDataURL(f);
+    // reset
+    fileInput.value = '';
+  });
+})();
+</script>
+
+</body>
+</html>
